@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: dlsof.h,v 1.41 2008/10/21 16:16:06 abe Exp $
+ * $Id: dlsof.h,v 1.44 2011/09/07 19:14:59 abe Exp $
  */
 
 
@@ -66,7 +66,36 @@
 #   endif	/* FREEBSDV<6020 */
 #define	_KERNEL	1
 #  endif	/* FREEBSDV>=5000 */
+
+#  if	defined(HAS_VM_MEMATTR_T)
+/*
+ * The d_mmap2_t function typedef in <sys/conf.h> may need the definition
+ * of vm_memattr_t for a pointer, but that definition is only available
+ * under _KERNEL in <sys/types.h>.  Defining _KERNEL before including
+ * <sys/types.h> causes many compilation problems, so this expediency
+ * (hack) is used when the vm_memattr_t definition is needed.
+ */
+#define	vm_memattr_t	void
+#  endif	/* defined(HAS_VM_MEMATTR_T) */
+
+#  if	defined(NEEDS_BOOLEAN_T)
+/*
+ * In FreeBSD 9 and above the boolean_t typedef is also needed and is also
+ * under _KERNEL in <sys/types.h>.
+ */
+
+#define	boolean_t	int
+#  endif	/* defined(NEEDS_BOOLEAN_T) */
+
 #include <sys/conf.h>
+
+#  if	defined(HAS_VM_MEMATTR_T)
+#undef	vm_memattr_t
+#  endif	/* defined(HAS_VM_MEMATTR_T) */
+
+#  if	defined(NEEDS_BOOLEAN_T)
+#undef	boolean_t
+#  endif	/* defined(NEEDS_BOOLEAN_T) */
 
 #  if	defined(HAS_CONF_MINOR)
 #undef	minor
@@ -186,9 +215,9 @@ struct vop_setextattr_args;
 #include <nfs/nfsproto.h>
 # endif	/* FREEBSDV<5000 */
 
-# if	defined(HASRPCV2H) || FREEBSDV>=4000
+# if	defined(HASRPCV2H)
 #include <nfs/rpcv2.h>
-# endif	/* defined(HASRPCV2H) || FREEBSDV>=4000 */
+# endif	/* defined(HASRPCV2H) */
 
 # if	FREEBSDV>=5000
 #include <nfsclient/nfs.h>
@@ -345,9 +374,9 @@ struct vop_advlock_args { int dummy; };	/* to pacify lf_advlock() prototype */
 #include <sys/sx.h>
 #   endif	/* defined(HAS_SYS_SX_H) */
 
-#   if	defined(HAS_SI_PRIV) || defined(HAS_CONF_MINOR)
+#   if	defined(HAS_SI_PRIV) || defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 #include <fs/devfs/devfs_int.h>
-#   endif	/* defined(SI_PRIV) || defined(HAS_CONF_MINOR) */
+#   endif	/* defined(SI_PRIV) || defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 
 #include <fs/devfs/devfs.h>
 #undef	_KERNEL

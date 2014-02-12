@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: proto.h,v 1.34 2008/10/21 16:21:41 abe Exp $
+ * $Id: proto.h,v 1.36 2011/09/07 19:13:49 abe Exp $
  */
 
 
@@ -87,6 +87,11 @@ _PROTOTYPE(extern char *endnm,(size_t *sz));
 _PROTOTYPE(extern int enter_cmd_rx,(char *x));
 _PROTOTYPE(extern void enter_dev_ch,(char *m));
 _PROTOTYPE(extern int enter_dir,(char *d, int descend));
+
+# if	defined(HASEOPT)
+_PROTOTYPE(extern int enter_efsys,(char *e, int rdlnk));
+# endif	/* defined(HASEOPT) */
+
 _PROTOTYPE(extern int enter_fd,(char *f));
 _PROTOTYPE(extern int enter_network_address,(char *na));
 _PROTOTYPE(extern int enter_id,(enum IDType ty, char *p));
@@ -125,7 +130,13 @@ _PROTOTYPE(extern void hashSfile,(void));
 _PROTOTYPE(extern void initialize,(void));
 _PROTOTYPE(extern int is_cmd_excl,(char *cmd, short *pss, short *sf));
 _PROTOTYPE(extern int is_nw_addr,(unsigned char *ia, int p, int af));
+
+#if	defined(HASTASKS)
+_PROTOTYPE(extern int is_proc_excl,(int pid, int pgid, UID_ARG uid, short *pss, short *sf, int tid));
+#else	/* !defined(HASTASKS) */
 _PROTOTYPE(extern int is_proc_excl,(int pid, int pgid, UID_ARG uid, short *pss, short *sf));
+#endif	/* defined(HASTASKS) */
+
 _PROTOTYPE(extern int is_readable,(char *path, int msg));
 _PROTOTYPE(extern int kread,(KA_T addr, char *buf, READLEN_T len));
 _PROTOTYPE(extern void link_lfile,(void));

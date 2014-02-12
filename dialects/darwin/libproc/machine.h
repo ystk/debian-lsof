@@ -1,13 +1,16 @@
 /*
- * machine.h - Solaris definitions for lsof
+ * machine.h -- Darwin definitions for libproc-based lsof
  */
 
 
 /*
- * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * Portions Copyright 2005 Apple Computer, Inc.  All rights reserved.
+ *
+ * Copyright 2005 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
  *
- * Written by Victor A. Abell
+ * Written by Allan Nathanson, Apple Computer, Inc., and Victor A.
+ * Abell, Purdue University.
  *
  * This software is not subject to any license of the American Telephone
  * and Telegraph Company or the Regents of the University of California.
@@ -16,12 +19,13 @@
  * any computer system, and to alter it and redistribute it freely, subject
  * to the following restrictions:
  *
- * 1. Neither the authors nor Purdue University are responsible for any
- *    consequences of the use of this software.
+ * 1. Neither the authors, nor Apple Computer, Inc. nor Purdue University
+ *    are responsible for any consequences of the use of this software.
  *
- * 2. The origin of this software must not be misrepresented, either by
- *    explicit claim or by omission.  Credit to the authors and Purdue
- *    University must appear in documentation and sources.
+ * 2. The origin of this software must not be misrepresented, either
+ *    by explicit claim or by omission.  Credit to the authors, Apple
+ *    Computer, Inc. and Purdue University must appear in documentation
+ *    and sources.
  *
  * 3. Altered versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
@@ -31,89 +35,18 @@
 
 
 /*
- * $Id: machine.h,v 1.47 2011/09/07 19:16:00 abe Exp $
+ * $Id: machine.h,v 1.9 2012/04/10 16:41:04 abe Exp $
  */
+
 
 #if	!defined(LSOF_MACHINE_H)
-#define	LSOF_MACHINE_H  1
-
-# if	defined(HAS_LGRP_ROOT_CONFLICT)
-/*
- * <sys/lgrp.h> must be #include'd early on some older Solaris systems at
- * version 9 and Solaris 10 before _KMEMUSER or _KERNEL are defined to avoid
- * a conflict with the use of lgrp_root as an external symbol in <sys/lgrp.h>
- * and a macro in <sys/lgrp_user.h>.
- */
-
-#include <sys/lgrp.h>
-# endif	/* defined(HAS_LGRP_ROOT_CONFLICT) */
+#define	LSOF_MACHINE_H	1
 
 
-# if	solaris>=100000
-/*
- * Define a dummy aio_req structure for Solaris >= 10, because #include'ing
- * <sys/aio_req.h> with _KERNEL defined creates too many problems.
- */
+#include <sys/types.h>
+#include <sys/param.h>
 
-typedef struct aio_req { int dummy; } aio_req_t;
-
-/*
- * Include <sys/utsname.h> so it won't be corrupted for 32 bit compilations
- * when _KERNEL is defined for some include files in dlsof.h.
- *
- * Daniel Trinkle identified this requirement.
- */
-
-#include <sys/utsname.h>
-# endif	/* solaris>=100000 */
-
-
-# if	solaris>=20600
-/*
- * <sys/poll.h> must be #include'd for Solaris >= 2.6 while _KMEMUSER is
- * defined.  Since <netdb.h> also #include's <sys/poll.h> and <netdb.h>
- * is #include'd from lsof.h, we must perform some early #include magic
- * here to set things up properly.
- */
-
-#define	_KMEMUSER	1
-#define	__BIT_TYPES_DEFINED__	1	/* work around to keep the BIND
-					 * <sys/bitypes.h> from colliding with
-					 * the Solaris <sys/int_types.h> */
-
-#  if	defined(HAS_PAD_MUTEX)
-/*
- * Some versions of Solaris 11 need to have the pad_mutex_t typedef defined.
- * However, it is only defined by <sys/mutex.h> when _KERNEL is defined, and
- * doing that causes other difficulties.
- *
- * So <sys/mutex.h> is included here, followed by a copy of its pad_mutex_t
- * typedef, all outside the _KERNEL definition.
- *
- * This brute force work-around was supplied by Carson Gaspar.
- */
-
-#include	<sys/mutex.h>
-typedef struct pad_mutex {
-	kmutex_t	pad_mutex;
-#   if	defined(_LP64)
-	char		pad_pad[64 - sizeof (kmutex_t)];
-#   endif	/* defined(_LP64) */
-} pad_mutex_t;
-#  endif	/* defined(HAS_PAD_MUTEX) */
-
-#include <sys/poll.h>
-
-# if	solaris>=80000
-#include <sys/wait.h>
-#include <sys/types32.h>
-#define	_KERNEL	1
-#include <netinet/in.h>
-#undef	_KERNEL
-#define	ipa_32	s6_ipaddr.ipa_32
-# endif	/* solaris>=80000 */
-
-# endif	/* solaris>=20600 */
+#include "/usr/include/string.h"
 
 
 /*
@@ -121,9 +54,7 @@ typedef struct pad_mutex {
  * can be used to obtain a CLIENT handle in lieu of clnttcp_create().
  */
 
-# if	solaris>=20501
 #define	CAN_USE_CLNT_CREATE	1
-# endif	/* solaris>=20501 */
 
 
 /*
@@ -131,11 +62,7 @@ typedef struct pad_mutex {
  * nodes.
  */
 
-# if	solaris<100000
 #define	DEVDEV_PATH	"/dev"
-# else	/* solaris>=100000 */
-#define	DEVDEV_PATH	"/devices"
-# endif	/* solaris<100000 */
 
 
 /*
@@ -143,9 +70,7 @@ typedef struct pad_mutex {
  * getdtablesize() to obtain the maximum file descriptor number plus one.
  */
 
-# if	solaris<20500
-#define	GET_MAX_FD	get_max_fd
-# endif	/* solaris<20500 */
+/* #define	GET_MAX_FD	?	*/
 
 
 /*
@@ -154,7 +79,7 @@ typedef struct pad_mutex {
  * supplied with the -A <path> option.
  */
 
-#define	HASAOPT		1
+/* #define	HASAOPT		1 */
 
 
 /*
@@ -190,11 +115,11 @@ typedef struct pad_mutex {
  * information on device cache file path construction.
  */
 
-#define	HASDCACHE	1
-#define	HASENVDC	"LSOFDEVCACHE"
-#define	HASPERSDC	"%h/%p.lsof_%L"
-#define	HASPERSDCPATH	"LSOFPERSDCPATH"
-/* #define	HASSYSDC	"/your/choice/of/path" */
+/* #define	HASDCACHE	1			*/
+/* #define	HASENVDC	"LSOFDEVCACHE"		*/
+/* #define	HASPERSDC	"%h/%p.lsof_%L"		*/
+/* #define	HASPERSDCPATH	"LSOFPERSDCPATH"	*/
+/* #define	HASSYSDC	"/your/choice/of/path"	*/
 
 
 /*
@@ -205,17 +130,10 @@ typedef struct pad_mutex {
 
 
 /*
- * HASEOPT is defined for dialects that support the +|-e option.
- */
-
-/* #define	HASEOPT	1 */
-
-
-/*
  * HASFIFONODE is defined for those dialects that have FIFO nodes.
  */
 
-#define	HASFIFONODE	1
+/* #define	HASFIFONODE	1 */
 
 
 /*
@@ -233,9 +151,6 @@ typedef struct pad_mutex {
  * It defaults to zero (0), but may be made up of a combination of the
  * FSV_* symbols from lsof.h.
  *
- * If any file structure value is unavailable, its use may be suppressed
- * with any of the following definitions:
- *
  *   HASNOFSADDR  -- has no file structure address
  *   HASNOFSFLAGS -- has no file structure flags
  *   HASNOFSCOUNT -- has no file structure count
@@ -244,10 +159,10 @@ typedef struct pad_mutex {
 
 #define	HASFSTRUCT	1
 /* #define	FSV_DEFAULT	FSV_? | FSV_? | FSV_? */
-/* #define	HASNOFSADDR	1	has no file structure address */
+#define	HASNOFSADDR	1	/* has no file structure address */
 /* #define	HASNOFSFLAGS	1	has no file structure flags */
 /* #define	HASNOFSCOUNT	1	has no file structure count */
-/* #define	HASNOFSNADDR	1	has no file structure node address */
+#define	HASNOFSNADDR	1	/* has no file structure node address */
 
 
 /*
@@ -261,7 +176,7 @@ typedef struct pad_mutex {
  * HASHSNODE is defined for those dialects that have High Sierra nodes.
  */
 
-#define	HASHSNODE	1
+/* #define	HASHSNODE	1 */
 
 
 /*
@@ -269,7 +184,7 @@ typedef struct pad_mutex {
  * use readinode() from node.c.
  */
 
-/* #define	HASINODE	1	*/
+/* #define	HASINODE	1 */
 
 
 /*
@@ -293,15 +208,15 @@ typedef struct pad_mutex {
  * reading the kernel's name list from an optional file.
  */
 
-#define	HASKOPT	1
+/* #define	HASKOPT	1	*/
 
 
 /*
  * HASLFILEADD is defined for those dialects that need additional elements
- * in struct lfile.  The HASLFILEADD definition is a macro that defines them.
- *
- * If any additional elements need to be preset in the alloc_lfile() function
- * of proc.c, the SETLFILEADD macro may be defined to do that.
+ * in struct lfile.  The HASLFILEADD definition is a macro that defines
+ * them.  If any of the additional elements need to be preset in the
+ * alloc_lfile() function of proc.c, the SETLFILEADD macro may be defined
+ * to do that.
  *
  * If any additional elements need to be cleared in alloc_lfile() or in the
  * free_proc() function of proc.c, the CLRLFILEADD macro may be defined to
@@ -314,11 +229,15 @@ typedef struct pad_mutex {
  * private lfile elements are used.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASLFILEADD	KA_T V_path;
-#define	CLRLFILEADD(lf)	(lf)->V_path = (KA_T)NULL;
-#define SETLFILEADD Lf->V_path = (KA_T)NULL;
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
+#define	HASLFILEADD char *V_path; \
+		    mach_port_t fileport;
+#define CLRLFILEADD(lf)	if (lf->V_path) { \
+			    (void) free((FREE_P *)lf->V_path); \
+			    lf->V_path = (char *)NULL; \
+			} \
+			lf->fileport = MACH_PORT_NULL;
+#define SETLFILEADD Lf->V_path = (char *)NULL; \
+		    Lf->fileport = MACH_PORT_NULL;
 
 
 /*
@@ -326,9 +245,7 @@ typedef struct pad_mutex {
  * in its l_vfs and mounts structures.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASMNTSTAT	1
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
+/* #define	HASMNTSTAT	1	*/
 
 
 /*
@@ -344,7 +261,7 @@ typedef struct pad_mutex {
  * kernel memory from an alternate file.
  */
 
-#define	HASMOPT	1
+/* #define	HASMOPT	1	*/
 
 
 /*
@@ -357,14 +274,8 @@ typedef struct pad_mutex {
  * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-/* #define	HASNCACHE	1	*/
-#else	/* solaris<10 || !defined(HAS_V_PATH) */
-#define	HASNCACHE	1
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
-
-#define	NCACHELDPFX	open_kvm();	/* do before calling ncache_load() */
-
+/* #define	HASNCACHE	1   */
+/* #define	NCACHELDPFX	??? */
 /* #define	NCACHELDSFX	??? */
 
 
@@ -373,7 +284,7 @@ typedef struct pad_mutex {
  * kernel symbols.
  */
 
-#define	HASNLIST	1
+/* #define	HASNLIST	1	*/
 
 
 /*
@@ -384,7 +295,7 @@ typedef struct pad_mutex {
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-/* #define	HASPIPEFN	process_pipe? */
+/* #define	HASPIPEFN	process_pipe?	*/
 
 
 /*
@@ -417,12 +328,9 @@ typedef struct pad_mutex {
  * called from print_file().
  */
 
-# if	solaris<100000
-#define	HASPRINTDEV	print_dev
-# endif	/* solaris<100000 */
-
+/* #define	HASPRINTDEV	print_dev	*/
 /* #define	HASPRINTINO	print_ino?	*/
-/* #define	HASPRINTNM	print_nm?	*/
+#define	HASPRINTNM	print_nm
 /* #define	HASPRINTOFF	print_off?	*/
 /* #define	HASPRINTSZ	print_sz?	*/
 
@@ -450,15 +358,7 @@ typedef struct pad_mutex {
  * returns non-zero if it prints a name to stdout.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
 #define	HASPRIVNMCACHE	print_v_path
-# else	/* solaris<10 || !defined(HAS_V_PATH) */
-#  if	defined(HASVXFSRNL)
-#define	HASPRIVNMCACHE	print_vxfs_rnl_path
-#  else	/* !defined(HASVXFSRNL) */
-/* #define	HASPRIVNMCACHE	<function name>	*/
-#  endif	/* defined(HASVXFSRNL) */
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
 
 
 /*
@@ -494,16 +394,16 @@ typedef struct pad_mutex {
  * by inode number.
  */
 
-#define	HASPROCFS	"proc"
-#define	HASFSTYPE	1
-#define	HASPINODEN	1
+/* #define	HASPROCFS	"proc?"	*/
+/* #define	HASFSTYPE	1	*/
+/* #define	HASPINODEN	1	*/
 
 
 /*
  * HASRNODE is defined for those dialects that have rnodes.
  */
 
-#define	HASRNODE	1
+/* #define	HASRNODE	1	*/
 
 
 /*
@@ -533,24 +433,18 @@ typedef struct pad_mutex {
  * HASWIDECHAR activates lsof's wide character support and WIDECHARINCL
  * defines the header file (if any) that must be #include'd to use the
  * mblen() and mbtowc() functions.
- *
- * If a special definition is required (e.g., for Solaris) before #include'ing
- * <ctype.h>, do that here.
  */
 
 #define	HASSETLOCALE	1
 #define	HASWIDECHAR	1
-#define	WIDECHARINCL	<wchar.h>
-#define __XPG4_CHAR_CLASS__
-#include	<ctype.h>
-#undef __XPG4_CHAR_CLASS__
+/* #define	WIDECHARINCL	<wchar.h>	*/
 
 
 /*
  * HASSNODE is defined for those dialects that have snodes.
  */
 
-#define	HASSNODE	1
+/* #define	HASSNODE	1	*/
 
 
 /*
@@ -566,11 +460,9 @@ typedef struct pad_mutex {
  * options.
  */
 
-# if	solaris>=20600
 #define	HASSOOPT	1	/* has socket option information */
-/* #define	HASSOSTATE	1	has socket state information */
+#define	HASSOSTATE	1	/* has socket state information */
 #define	HASTCPOPT	1	/* has TCP options or flags */
-# endif	/* solaris>=20600 */
 
 
 /*
@@ -588,14 +480,14 @@ typedef struct pad_mutex {
  * The function returns void.
  */
 
-/* #define	HASSPECDEVD	process_dev_stat */
+#define	HASSPECDEVD	process_dev_stat
 
 
 /*
  * HASSTREAMS is defined for those dialects that support streams.
  */
 
-#define	HASSTREAMS	1
+/* #define	HASSTREAMS	1 */
 
 
 /*
@@ -603,9 +495,7 @@ typedef struct pad_mutex {
  * TCP/TPI Recv-Q and Send-Q values produced by netstat.
  */
 
-# if	solaris==20300 || solaris>=20500
 #define	HASTCPTPIQ	1
-# endif	/* solaris==20300 || solaris>=20500 */
 
 
 /*
@@ -613,9 +503,7 @@ typedef struct pad_mutex {
  * TCP/TPI send and receive window sizes produced by netstat.
  */
 
-# if	solaris==20300 || solaris>=20500
-#define	HASTCPTPIW	1
-# endif	/* solaris==20300 || solaris>=20500 */
+/* #define	HASTCPTPIW	1 */
 
 
 /*
@@ -631,7 +519,7 @@ typedef struct pad_mutex {
  * HASTMPNODE is defined for those dialects that have tmpnodes.
  */
 
-#define	HASTMPNODE	1
+/* #define	HASTMPNODE	1 */
 
 
 /*
@@ -640,7 +528,7 @@ typedef struct pad_mutex {
  * R4 usually don't.
  */
 
-#define	HASVNODE	1
+/* #define	HASVNODE	1	*/
 
 
 /*
@@ -649,10 +537,8 @@ typedef struct pad_mutex {
  * option's default binary value -- 0 or 1.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASXOPT		"report deleted paths"
-#define	HASXOPT_VALUE	0
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
+/* #define	HASXOPT		"help text for X option" */
+/* #define	HASXOPT_VALUE	1 */
 
 
 /*
@@ -663,12 +549,10 @@ typedef struct pad_mutex {
  * These are defined here, because they must be used in dlsof.h.
  */
 
-# if	solaris>=20501
 #define	INODETYPE	unsigned long long
 					/* inode number internal storage type */
 #define	INODEPSPEC	"ll"		/* INODETYPE printf specification
 					 * modifier */
-# endif	/* solaris>=20501 */
 
 
 /*
@@ -676,7 +560,7 @@ typedef struct pad_mutex {
  * as a function argument.
  */
 
-#define	UID_ARG	long
+#define	UID_ARG	int
 
 
 /*
@@ -689,29 +573,21 @@ typedef struct pad_mutex {
  */
 
 #define	USE_LIB_CKKV				1	/* ckkv.c */
-#define	USE_LIB_COMPLETEVFS			1	/* cvfs.c */
+/* #define	USE_LIB_COMPLETEVFS		1	   cvfs.c */
 #define	USE_LIB_FIND_CH_INO			1	/* fino.c */
-/* #define	USE_LIB_IS_FILE_NAMED		1	   isfn.c */
+#define	USE_LIB_IS_FILE_NAMED			1	/* isfn.c */
 #define	USE_LIB_LKUPDEV				1	/* lkud.c */
 /* #define	USE_LIB_PRINTDEVNAME		1	   pdvn.c */
 /* #define	USE_LIB_PROCESS_FILE		1	   prfp.c */
-/* #define	USE_LIB_PRINT_TCPTPI		1	   ptti.c */
+#define	USE_LIB_PRINT_TCPTPI			1	/* ptti.c */
 /* #define	USE_LIB_READDEV			1	   rdev.c */
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_REGEX			1	   regex.c */
 /* #define	USE_LIB_RNAM			1	   rnam.c */
-
-# if	solaris<90000
-#define	USE_LIB_RNCH				1	/* rnch.c */
-# endif	/* solaris<90000 */
-
+/* #define	USE_LIB_RNCH			1	   rnch.c */
 /* #define	USE_LIB_RNMH			1	   rnmh.c */
-
-# if	solaris<20600
-#define	USE_LIB_SNPF				1	/* snpf.c */
-# else	/* solaris>=20600 */
-#define	snpf	snprintf	   /* use the system's snprintf() */
-# endif	/* solaris<20600 */
+/* #define	USE_LIB_SNPF			1	   snpf.c */
+#define	snpf	snprintf		/* use the system's snprintf() */
 
 
 /*
@@ -720,7 +596,7 @@ typedef struct pad_mutex {
  * The warning can be inhibited by the lsof caller with the -w option.
  */
 
-#define	WARNDEVACCESS	1
+/* #define	WARNDEVACCESS	1	*/
 
 
 /*
@@ -744,6 +620,6 @@ typedef struct pad_mutex {
  * zeromem is a macro that uses bzero or memset.
  */
 
-#define	zeromem(a, l)		memset((void *)a, 0, l)
+#define	zeromem(a, l)	memset(a, 0, l)
 
 #endif	/* !defined(LSOF_MACHINE_H) */

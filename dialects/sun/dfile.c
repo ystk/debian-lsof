@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dfile.c,v 1.20 2006/03/27 22:57:33 abe Exp $";
+static char *rcsid = "$Id: dfile.c,v 1.21 2009/03/25 19:22:16 abe Exp $";
 #endif
 
 
@@ -386,6 +386,7 @@ is_file_named(p, nt, vt, ps)
 }
 
 
+#if	defined(HASPRINTDEV)
 /*
  * print_dev() - print device
  */
@@ -414,6 +415,7 @@ print_dev(lf, dev)
 	    ), (int)(*dev & L_MAXMIN));
 	return(buf);
 }
+#endif	/* defined(HASPRINTDEV) */
 
 
 #if	defined(HAS_V_PATH)

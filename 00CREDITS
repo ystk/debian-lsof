@@ -33,19 +33,23 @@ provided test systems where I was able to do development work.
 	Tigran Aivazian
 	Jos Backus
 	David Bacon
+	Alexis Ballier
 	Scott Ballew
 	Ade Barkah
 	Alon Bar-Lev
+	Brett Bartick
 	Anthony Baxter
 	John Beacom
 	Bruce Beare
 	M. Jay Beck
+	Marek Behun
 	Bill Behr
 	Michael Beirne
 	Marc Bejarano
 	Andrew Bell
 	Steve Bellenot
 	Robert Benites
+	Dmitry Berezin
 	Ulrich Bernhard
 	Peter J. Bertoncini
 	Dave Bianchi
@@ -71,6 +75,7 @@ provided test systems where I was able to do development work.
 	Jim Brown
 	Michael Bryan
 	Matthew Burt
+	Robert Byrnes
 	Pierfrancesco Caci
 	Bill Campbell
 	David Capshaw
@@ -104,8 +109,10 @@ provided test systems where I was able to do development work.
 	Robert Dahlem
 	Guy Dallaire
 	D. Chris Daniels
+	Renata Maria Dart
 	Ian Darwin
 	Carl E. Davidson
+	David Day
 	Will Day
 	Frederic Delanoy
 	Mike Depot
@@ -132,6 +139,7 @@ provided test systems where I was able to do development work.
 	Doug Eldred
 	Scott Ellentuch
 	Tom Endo
+	Grant Erickson
 	Craig Everhart
 	Chris Evert
 	Bob Farmer
@@ -147,7 +155,9 @@ provided test systems where I was able to do development work.
 	Mike Fraser
 	Curt Freeland
 	Terry Friedrichsen
+	Mike Frysinger
 	Harvey Garner
+	Carson Gaspar
 	Stuart D. Gathman
 	Brian L. Gentry
 	Dave Gilbert
@@ -157,6 +167,7 @@ provided test systems where I was able to do development work.
 	Kurt Gollhardt
 	Roman Gollent
 	Steve Gonczi
+	Bill Goodridge
 	Julian Gordon
 	Marcin Gozdalik
 	Henry Grebler
@@ -173,6 +184,7 @@ provided test systems where I was able to do development work.
 	Michael Haro
 	Peter Harvey
 	Steinar Haug
+	Jia He
 	Sheldon Hearn
 	John Heasley
 	Wolfgang Hecht
@@ -184,6 +196,7 @@ provided test systems where I was able to do development work.
 	Steven Hinkle
 	Paul Hite
 	Billy Ho
+	Michael Hocke
 	Brett Hogden
 	Gaylord Holder
 	Kjetil Torgrim Homme
@@ -223,11 +236,13 @@ provided test systems where I was able to do development work.
 	Amir Katz
 	Henry Katz
 	Kawaljeet Kaur
+	Doug Kehn
 	Kris Kennaway
 	Terry Kennedy
 	Shane Kenney
 	Andrew Kephart
 	Robert Kiessling
+	Joshua Kinard
 	Don Kirouac
 	Steve Kirsch
 	Philip Kizer
@@ -289,6 +304,7 @@ provided test systems where I was able to do development work.
 	Timothy J. Luoma
 	Michael Mackenzie
 	Lawrence MacIntyre
+	Jerome Marchand
 	Benson Margulies
 	Claude Marinier
 	Chris Markle
@@ -335,6 +351,7 @@ provided test systems where I was able to do development work.
 	Allan Nathanson
 	Chance Neale
 	Dan Nelson
+	Vladislav Nespor
 	Bjorn S. Nilsson
 	Anders Nordby
 	Joseph J. Nuspl Jr.
@@ -393,6 +410,7 @@ provided test systems where I was able to do development work.
 	Chris Schanzle
 	Igor Schein
 	Horst Scheuermann
+	Peter Schiffer
 	Michael Schmitz
 	Larry Schwimmer
 	Hendrik G. Seliger
@@ -436,6 +454,7 @@ provided test systems where I was able to do development work.
 	Patrick D. Sullivan
 	Peter Svensson
 	Chris Sylvain
+	Miklos Szeredi
 	Paul Szabo
 	Dale Talcott
 	Jon A. Tankersley
@@ -451,6 +470,7 @@ provided test systems where I was able to do development work.
 	Linus Torvalds
 	Mike Tracy
 	Dan Trinkle
+	Erik Trulsson
 	Lars Tunkrans
 	Lenny Turetsky
 	Kevin Vajk
@@ -458,6 +478,7 @@ provided test systems where I was able to do development work.
 	John R. Vanderpool
 	Peter Van Epp
 	Peter C. Vernam
+	Peter Vines
 	Bob Ward
 	Jules van Weerden
 	Tom Weaver
@@ -479,6 +500,7 @@ provided test systems where I was able to do development work.
 	Florian M. Weps
 	Joel White
 	Paul Wickman
+	Martin Wilke
 	Eric Williams
 	Steve Williams
 	Steve Wilson
@@ -488,8 +510,10 @@ provided test systems where I was able to do development work.
 	Stephen Woods
 	James Woodward
 	Scott Worley
+	Jan Wortelboer
 	Joshua Wright
 	Sailu Yallapragada
+	Masatake Yamato
 	Donna Yobs
 	Ron Young
 	Blair Zajac
@@ -503,4 +527,4 @@ and I apologize for the error.
 
 
 Vic Abell <abe@purdue.edu>
-October 21, 2008
+April 10, 2012

@@ -33,7 +33,7 @@
 
 
 /*
- * $Id: dproto.h,v 1.20 2008/10/21 16:16:42 abe Exp $
+ * $Id: dproto.h,v 1.21 2010/01/18 19:03:54 abe Exp $
  */
 
 
@@ -42,9 +42,18 @@ _PROTOTYPE(extern int access_vxfs_ioffsets,(void));
 #endif	/* defined(HASVXFSUTIL) */
 
 _PROTOTYPE(extern void completevfs,(struct l_vfs *vfs, dev_t *dev));
+
+# if	defined(HAS_LIBCTF)
+_PROTOTYPE(extern int CTF_getmem,(ctf_file_t *f, const char *mod,
+				  const char *ty, CTF_member_t *mem));
+_PROTOTYPE(extern void CTF_init,(int *i, char *t, CTF_request_t *r));
+_PROTOTYPE(extern int CTF_memCB,(const char *name, ctf_id_t id, ulong_t offset,
+				 void *arg));
+# endif	/* defined(HAS_LIBCTF) */
+
 _PROTOTYPE(extern int is_file_named,(char *p, int nt, enum vtype vt, int ps));
 _PROTOTYPE(extern struct l_vfs *readvfs,(KA_T ka, struct vfs *la, struct vnode *lv));
-_PROTOTYPE(extern int vop2ty,(struct vnode *vp));
+_PROTOTYPE(extern int vop2ty,(struct vnode *vp, int fx));
 
 #if	defined(HAS_AFS)
 _PROTOTYPE(extern struct vnode *alloc_vcache,(void));
@@ -70,7 +79,7 @@ _PROTOTYPE(extern void read_v_path,(KA_T ka, char *rb, size_t rbl));
 
 #if	defined(HASVXFS)
 _PROTOTYPE(extern int read_vxnode,(KA_T va, struct vnode *v, struct l_vfs *vfs,
-				   struct l_ino *li, KA_T *vnops));
+				   int fx, struct l_ino *li, KA_T *vnops));
 # if	defined(HASVXFSRNL)
 _PROTOTYPE(extern int print_vxfs_rnl_path,(struct lfile *lf));
 # endif	/* defined(HASVXFSRNL) */
@@ -83,6 +92,12 @@ _PROTOTYPE(extern int enter_zone_arg,(char *zn));
 _PROTOTYPE(extern void close_kvm,(void));
 _PROTOTYPE(extern void open_kvm,(void));
 _PROTOTYPE(extern void process_socket,(KA_T sa, char *ty));
+
+#if	solaris>=110000
+_PROTOTYPE(extern int process_VSOCK,(KA_T va, struct vnode *v,
+				     struct sonode *so));
+#endif	/* solaris>=11000 */
+
 _PROTOTYPE(extern void read_clone,(void));
 
 #if	solaris<20500

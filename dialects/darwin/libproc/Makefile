@@ -1,35 +1,33 @@
 
-# FreeBSD Makefile remainder
+# Darwin libproc-based lsof Makefile
 #
-# $Id: Makefile,v 1.12 2009/03/25 19:23:06 abe Exp $
+# $Id: Makefile,v 1.7 2009/03/25 19:21:37 abe Exp $
 
 PROG=	lsof
 
-BIN=	${DESTDIR}
+BIN=	${DSTROOT}/usr/sbin
 
-DOC=	${DESTDIR}
+DOC=	${DSTROOT}/usr/share/man/man8
 
 I=/usr/include
 S=/usr/include/sys
 L=/usr/include/local
 P=
 
-CDEF=
-CDEFS=  ${CDEF} ${CFGF}
+CDEF=	${RC_CFLAGS}
+CDEFS=	${CDEF} ${CFGF}
 INCL=	${DINC}
-CFLAGS=	${CDEFS} ${INCL} ${DEBUG}
+override CFLAGS= ${CDEFS} ${INCL} ${DEBUG}
 
-GRP=
+GRP=    wheel
 
-HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h dzfs.h
+HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
 
-SRC=    dmnt.c dnode.c dnode1.c dnode2.c dproc.c dsock.c dstore.c \
-	arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
-	util.c
+SRC=    ddev.c dfile.c dmnt.c dproc.c dsock.c dstore.c \
+	arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c
 
-OBJ=	dmnt.o dnode.o dnode1.o dnode2.o dproc.o dsock.o dstore.o \
-	arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
-	util.o
+OBJ=	ddev.o dfile.o dmnt.o dproc.o dsock.o dstore.o \
+	arg.o main.o misc.o node.o print.o proc.o store.o usage.o util.o
 
 MAN=	lsof.8
 
@@ -49,21 +47,39 @@ clean: FRC
 	rm -f machine.h.old new_machine.h
 	(cd lib; ${MAKE} -f Makefile.skel clean)
 
+install-strip: all FRC
+	@if [ -n "${SYMROOT}" ]; then \
+	  mkdir -p ${SYMROOT}; \
+	  cp -p ${PROG} ${SYMROOT}/${PROG}; \
+	fi
+	mkdir -p ${BIN}
+	install -c -s -m 755 -g ${GRP} ${PROG} ${BIN}
+	mkdir -p ${DOC}
+	install -c -m 444 ${MAN} ${DOC}
+
 install: all FRC
 	@echo ''
-	@echo 'Please write your own install rule.  Lsof should be installed'
-	@echo 'setgid to the group that can can read /dev/kmem.  Normally'
-	@echo 'that is the kmem group.  Your install rule actions might look'
+	@echo 'Please write your own install rule.  Lsof for Darwin below 8'
+	@echo 'should be installed setgid to the group that has permission'
+	@echo 'to read /dev/kmem, often kmem or sys.  Lsof for Darwin 8 and'
+	@echo 'above should be installed setuid-root.  Your install rule'
+	@echo 'actions for Darwin below 8 might look something like this:'
+	@echo ''
+	@echo '    install -m 2xxx -g $${GRP} $${PROG} $${BIN}'
+	@echo '    install -m 444 $${MAN} $${DOC}'
+	@echo ''
+	@echo 'Your install rule actions for Darwin 8 and above might look'
 	@echo 'something like this:'
 	@echo ''
-	@echo '    install -cs -m 2755 -g $${GRP} $${PROG} $${BIN}/$${PROG}'
-	@echo '    install -c -m 444 $${MAN} $${DOC}/$${MAN}'
+	@echo '    install -m 4xxx -o root $${PROG} $${BIN}'
+	@echo '    install -m 444 $${MAN} $${DOC}'
 	@echo ''
-	@echo 'You will have to complete the skeletons for the BIN, DOC, and'
-	@echo 'GRP strings given at the beginning of this Makefile, e.g.,'
+	@echo 'You will have to complete the xxx modes, the GRP value, and'
+	@echo 'the skeletons for the BIN and DOC strings, given at the'
+	@echo 'beginning of this Makefile, e.g.,'
 	@echo ''
 	@echo '    BIN= $${DESTDIR}/usr/local/etc'
-	@echo '    DOC= $${DESTDIR}/usr/local/man/man8'
+	@echo '    DOC= $${DESTDIR}/usr/man/man8'
 	@echo '    GRP= kmem'
 	@echo ''
 
@@ -78,6 +94,7 @@ version.h:	FRC
 	@echo '#define	LSOF_CCV	"${CCV}"' >> version.h
 	@echo '#define	LSOF_CCDATE	"'`date`'"' >> version.h
 	@echo '#define	LSOF_CCFLAGS	"'`echo ${CFLAGS} | sed 's/\\\\(/\\(/g' | sed 's/\\\\)/\\)/g' | sed 's/"/\\\\"/g'`'"' >> version.h
+	@echo '#define  LSOF_CINFO      "${CINFO}"' >> version.h
 	@if [ "X${LSOF_HOST}" = "X" ]; then \
 	  echo '#define	LSOF_HOST	"'`uname -n`'"' >> version.h; \
 	else \
@@ -121,19 +138,11 @@ FRC:
 
 # DO NOT DELETE THIS LINE - make depend DEPENDS ON IT
 
+ddev.o:		${HDR} ddev.c
+
+dfile.o:	${HDR} dfile.c
+
 dmnt.o:		${HDR} dmnt.c
-
-dnode.o:	${HDR} dnode.c
-
-dnode1.o:	${HDR} dnode1.c
-
-dnode2.o:	dzfs.h dnode2.c
-		@if [ -f ./Makefile.zfs ]; then \
-		    ${MAKE} -f Makefile.zfs dnode2.o; \
-		else \
-		    echo "${CC} ${CFLAGS} -c dnode2.c"; \
-		    ${CC} ${CFLAGS} -c dnode2.c; \
-		fi;
 
 dproc.o:	${HDR} dproc.c
 

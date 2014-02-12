@@ -34,7 +34,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: main.c,v 1.53 2008/10/21 16:21:41 abe Exp $";
+static char *rcsid = "$Id: main.c,v 1.55 2011/09/07 19:13:49 abe Exp $";
 #endif
 
 
@@ -154,7 +154,7 @@ main(argc, argv)
  * Create option mask.
  */
 	(void) snpf(options, sizeof(options),
-	    "?a%sbc:D:d:%sf:F:g:hi:%slL:%sMnNo:Op:Pr:%ss:S:tT:u:UvVwx:%s%s%s",
+	    "?a%sbc:%sD:d:%sf:F:g:hi:%s%slL:%s%snNo:Op:Pr:%ss:S:tT:u:UvVwx:%s%s%s",
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
 	    "A:",
@@ -168,17 +168,35 @@ main(argc, argv)
 	    "",
 #endif	/* defined(HASNCACHE) */
 
+#if	defined(HASEOPT)
+	    "e:",
+#else	/* !defined(HASEOPT) */
+	    "",
+#endif	/* defined(HASEOPT) */
+
 #if	defined(HASKOPT)
 	    "k:",
 #else	/* !defined(HASKOPT) */
 	    "",
 #endif	/* defined(HASKOPT) */
 
+#if	defined(HASTASKS)
+	    "K",
+#else	/* !defined(HASTASKS) */
+	    "",
+#endif	/* defined(HASTASKS) */
+
 #if	defined(HASMOPT) || defined(HASMNTSUP)
 	    "m:",
 #else	/* !defined(HASMOPT) && !defined(HASMNTSUP) */
 	    "",
 #endif	/* defined(HASMOPT) || defined(HASMNTSUP) */
+
+#if	defined(HASNORPC_H)
+	    "",
+#else	/* !defined(HASNORPC_H) */
+	    "M",
+#endif	/* defined(HASNORPC_H) */
 
 #if	defined(HASPPID)
 	    "R",
@@ -294,6 +312,13 @@ main(argc, argv)
 		Fncache = (GOp == '-') ? 0 : 1;
 		break;
 #endif	/* defined(HASNCACHE) */
+
+#if	defined(HASEOPT)
+	    case 'e':
+		if (enter_efsys(GOv, ((GOp == '+') ? 1 : 0)))
+		    err = 1;
+		break;
+#endif	/* defined(HASEOPT) */
 
 	    case 'd':
 		if (GOp == '+') {
@@ -424,11 +449,6 @@ main(argc, argv)
 			||  FieldSel[i].id == LSOF_FID_NI)
 			    continue;
 #endif	/* !defined(HASFSTRUCT) */
-
-#if	!defined(HASZONES)
-			if (FieldSel[i].id == LSOF_FID_ZONE)
-			    continue;
-#endif	/* !defined(HASZONES) */
  
 #if	defined(HASSELINUX)
 			if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
@@ -440,6 +460,17 @@ main(argc, argv)
 
 			if (FieldSel[i].id == LSOF_FID_RDEV)
 			    continue;	/* for compatibility */
+
+#if	!defined(HASTASKS)
+			if (FieldSel[i].id == LSOF_FID_TID)
+			    continue;
+#endif	/* !defined(HASTASKS) */
+
+#if	!defined(HASZONES)
+			if (FieldSel[i].id == LSOF_FID_ZONE)
+			    continue;
+#endif	/* !defined(HASZONES) */
+
 			FieldSel[i].st = 1;
 			if (FieldSel[i].opt && FieldSel[i].ov)
 			    *(FieldSel[i].opt) |= FieldSel[i].ov;
@@ -472,6 +503,11 @@ main(argc, argv)
 			||  FieldSel[i].id == LSOF_FID_NI)
 			    continue;
 #endif	/* !defined(HASFSTRUCT) */
+
+#if	!defined(HASTASKS)
+			if (FieldSel[i].id == LSOF_FID_TID)
+			    continue;
+#endif	/* !defined(HASTASKS) */
 
 			if (FieldSel[i].id == *GOv) {
 			    FieldSel[i].st = 1;
@@ -537,6 +573,13 @@ main(argc, argv)
 		    Nmlst = GOv;
 		break;
 #endif	/* defined(HASKOPT) */
+
+#if	defined(HASTASKS)
+		case 'K':
+		    Ftask = 1;
+		    Selflags |= SELTASK;
+		    break;
+#endif	/* defined(HASTASKS) */
 
 	    case 'l':
 		Futol = 0;
@@ -619,9 +662,12 @@ main(argc, argv)
 		break;
 #endif	/* defined(HASMOPT) || defined(HASMNTSUP) */
 
+#if	!defined(HASNORPC_H)
 	    case 'M':
 		FportMap = (GOp == '+') ? 1 : 0;
 		break;
+#endif	/* !defined(HASNORPC_H) */
+
 	    case 'n':
 		Fhost = (GOp == '-') ? 0 : 1;
 		break;
@@ -1013,6 +1059,35 @@ main(argc, argv)
 	    (void) fprintf(stderr, "%s: -x must accompany +d or +D\n", Pn);
 	    err++;
 	}
+
+#if	defined(HASEOPT)
+	if (Efsysl) {
+
+	/*
+	 * If there are file systems specified by -e options, check them.
+	 */
+	    efsys_list_t *ep;		/* Efsysl pointer */
+	    struct mounts *mp, *mpw;	/* local mount table pointers */
+
+	    if ((mp = readmnt())) {
+		for (ep = Efsysl; ep; ep = ep->next) {
+		    for (mpw = mp; mpw; mpw = mpw->next) {
+			if (!strcmp(mpw->dir, ep->path)) {
+			    ep->mp = mpw;
+			    break;
+			}
+		    }
+		    if (!ep->mp) {
+			(void) fprintf(stderr,
+			    "%s: \"-e %s\" is not a mounted file system.\n",
+			    Pn, ep->path);
+			err++;
+		    }
+		}
+	    }
+	}
+#endif	/* defined(HASEOPT) */
+
 	if (DChelp || err || Fhelp || fh || version)
 	    usage(err ? 1 : 0, fh, version);
 /*
@@ -1450,6 +1525,18 @@ main(argc, argv)
 		(void) printf("%s: process ID not located: %d\n",
 		    Pn, Spid[i].i);
 	}
+
+#if	defined(HASTASKS)
+	if (Ftask && Ftask < 2) {
+
+	/*
+	 * Report no tasks located.
+	 */
+	    rv = 1;
+	    if (Fverbose)
+		(void) printf("%s: no tasks located\n", Pn);
+	}
+#endif	/* defined(HASTASKS) */
 
 #if	defined(HASZONES)
 	if (ZoneArg) {

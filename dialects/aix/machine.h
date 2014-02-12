@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: machine.h,v 1.42 2008/10/21 16:14:18 abe Exp $
+ * $Id: machine.h,v 1.43 2010/07/29 16:02:44 abe Exp $
  */
 
 
@@ -498,6 +498,13 @@ typedef	long long	aligned_offset_t  __attribute__ ((aligned (8)));
  */
 
 /* #define	HASSNODE	1 */
+
+
+/*
+ * HASTASKS is defined for those dialects that have task reporting support.
+ */
+
+/* #define	HASTASKS	1 */
 
 
 /*

@@ -35,7 +35,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dnode2.c,v 1.22 2008/10/21 16:16:42 abe Exp $";
+static char *rcsid = "$Id: dnode2.c,v 1.23 2010/01/18 19:03:54 abe Exp $";
 #endif
 
 
@@ -359,10 +359,11 @@ print_vxfs_rnl_path(lf)
  */
 
 int
-read_vxnode(va, v, vfs, li, vnops)
+read_vxnode(va, v, vfs, fx, li, vnops)
 	KA_T va;			/* containing vnode's address */
 	struct vnode *v;		/* containing vnode */
 	struct l_vfs *vfs;		/* local vfs structure */
+	int fx;				/* file system index (-1 if none) */
 	struct l_ino *li;		/* local inode value receiver */
 	KA_T *vnops;			/* table of VxFS v_op values */
 {
@@ -421,7 +422,7 @@ read_vxnode(va, v, vfs, li, vnops)
 # endif	/* defined(HASNCACHE) */
 
 	    *v = cv;
-	    Ntype = vop2ty(v);
+	    Ntype = vop2ty(v, fx);
 	}
 
 #  if	defined(HASVXFSUTIL)

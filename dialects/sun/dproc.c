@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dproc.c,v 1.34 2008/10/21 16:16:42 abe Exp $";
+static char *rcsid = "$Id: dproc.c,v 1.36 2010/01/18 19:03:54 abe Exp $";
 #endif
 
 #include "lsof.h"
@@ -42,7 +42,15 @@ static char *rcsid = "$Id: dproc.c,v 1.34 2008/10/21 16:16:42 abe Exp $";
 #endif	/* solaris<20500 */
 
 #if	defined(HAS_CRED_IMPL_H)
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
 #include <sys/cred_impl.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
 #endif	/* defined(HAS_CRED_IMPL_H) */
 
 
@@ -396,7 +404,7 @@ gather_proc_info()
 	 *	o Skip processes excluded by zone name.
 	 *	o Save zone name.
 	 */
-	    if (!ckscko && Fzone && zn[0]) {
+	    if (Fzone && zn[0]) {
 		zh = hash_zn(zn);
 		if (ZoneArg) {
 
@@ -754,8 +762,11 @@ get_kernel_access()
  * Get the Solaris clone major device number, if possible.
  */
 	v = (KA_T)0;
-	if (get_Nl_value("clmaj", Drive_Nl, &v) >= 0 && v
-	&&  kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
+	if ((get_Nl_value("clmaj", Drive_Nl, &v) < 0) || !v) {
+	   if (get_Nl_value("clmaj_alt", Drive_Nl, &v) < 0)
+		v = (KA_T)0;
+	}
+	if (v && kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
 	    HaveCloneMaj = 1;
 /*
  * If the ALLKMEM device is available, check for the address of the kernel's

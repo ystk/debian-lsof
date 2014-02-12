@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: machine.h,v 1.41 2007/04/24 16:25:30 abe Exp $
+ * $Id: machine.h,v 1.42 2010/07/29 16:03:09 abe Exp $
  */
 
 
@@ -482,6 +482,13 @@
 # if	HPUXV>=900
 #define	HASSNODE	1
 # endif	/* HPUXV>=900 */
+
+
+/*
+ * HASTASKS is defined for those dialects that have task reporting support.
+ */
+
+/* #define	HASTASKS	1 */
 
 
 /*

@@ -721,6 +721,11 @@ been unlinked.  In that cause LTnlink may delay for up to a minute,
 calling lsof once every two seconds and displaying a "waiting for
 link count update: ..." message.
 
+Some file systems -- e.g., ZFS on Solaris 11 -- don't allow LTnlink to
+unlink its test file, because LTnlink has the file open.  LTnlink
+explains that failure and suggests that it be run with path of the "-p
+path" option set to a file on /tmp.  See 00FAQ for more information.
+
 Run this test:
 
     $ ./LTnlink [-p <path>]
@@ -856,6 +861,14 @@ base, footprints, and the scripts that support them.
 						have adequate support
 						to allow the LTlock
 						test to run.
+		  10.0, gcc			Darwin lsof doesn't
+						have adequate support
+						to allow the LTlock test
+						to run.
+		  11.0, gcc			Darwin lsof doesn't
+						have adequate support
+						to allow the LTlock test
+						to run.
     FreeBSD       4.5, i386, gcc
 		  4.6, i386, gcc
 		  4.7, i386, gcc
@@ -880,9 +893,18 @@ base, footprints, and the scripts that support them.
 		  6.0, Amd64, gcc
 		  6.0, Sparc, gcc
 		  6.1, i386, gcc
+		  6.4, i386, gcc
 		  7.0 Alpha, gcc
 		  7.0 Amd64, gcc
+		  7.1 Amd64, gcc
+		  7.2 Amd64, gcc
+		  7.3 Amd64, gcc
+		  7.4 Amd64, gcc
 		  8.0 Amd64, gcc
+		  8.2 Amd64, gcc
+		  8.3 Amd64, gcc
+		  9.0 Amd64, gcc
+		 10.0 Amd64, gcc
     DEC OSF/1	  4.0, cc
     HP-UX	  10.20, cc			LTbigf
 		  10.20, gcc (1)		LTbigf
@@ -919,6 +941,10 @@ base, footprints, and the scripts that support them.
 		  2.6.22-686			(Note: this Linux kernel
 						 supplies file offsets to
 						 lsof.)
+		  2.6.32-686			(Note: this Linux kernel
+						 supplies file offsets to
+						 lsof.)
+		  2.6.38-686
     NEXTSTEP      3.1, gcc                   	LTnfs
     NetBSD        1.4.1, Alpha, gcc          	LTnfs
 		  1.5x, x86, gcc           	LTnfs
@@ -960,6 +986,7 @@ base, footprints, and the scripts that support them.
 		  10-32, i86pc, cc
 		  10-64, Sparc, cc
 		  10-64, Sparc, gcc
+		  11-64, Amd64, cc
     Tru64 UNIX    5.0, cc
     Tru64 UNIX    5.0, cc
 		  5.1, cc
@@ -996,4 +1023,4 @@ I was unable to make the test suite run on the following dialects.
 
 
 Vic Abell <abe@purdue.edu>
-October 21, 2008
+April 10, 2012

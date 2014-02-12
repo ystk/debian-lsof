@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: dlsof.h,v 1.44 2007/04/24 16:23:15 abe Exp $
+ * $Id: dlsof.h,v 1.48 2012/04/10 16:40:23 abe Exp $
  */
 
 
@@ -69,7 +69,17 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/wait.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
 #include <netinet/in.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+
 
 # if	solaris>=70000
 #include <sys/conf.h>
@@ -105,12 +115,32 @@
 #define	inet_pton	__inet_pton
 #define	longjmp		__kernel_longjmp
 #define	setjmp		__kernel_setjmp
+#  if	solaris>=110000
+#define	printf		__kernel_printf
+#define	snprintf	__kernel_snprintf
+#define	sprintf		__kernel_sprintf
+#define	strsignal	__kernel_strsignal
+#define	swab		__kernel_swab
+#define	vprintf		__kernel_vprintf
+#define	vsprintf	__kernel_vsprintf
+#define	vsnprintf	__kernel_vsnprintf
+#  endif	/* solaris>=110000 */
 #include <inet/ipclassifier.h>
 #undef	ffs
 #undef	inet_ntop
 #undef	inet_pton
 #undef	longjmp
 #undef	setjmp
+#  if	solaris>=110000
+#undef	printf
+#undef	snprintf
+#undef	sprintf
+#undef	strsignal
+#undef	swab
+#undef	vprintf
+#undef	vsprintf
+#undef	vsnprintf
+#  endif	/* solaris>=110000 */
 # endif	/* defined(HAS_IPCLASSIFIER_H) */
 
 #include <inet/ip.h>
@@ -120,7 +150,17 @@
 #define	rval_t		char
 #define	strsignal	kernel_strsignal
 #include <sys/strsubr.h>
+
+# if	defined(HAS_SOCKET_PROTO_H)
+#define	_KERNEL	1	/* DEBUG */
+# endif	/* HAS_SOCKET_PROTO_H */
+
 #include <sys/socketvar.h>
+
+# if	defined(HAS_SOCKET_PROTO_H)
+#undef	_KERNEL		/* DEBUG */
+# endif	/* HAS_SOCKET_PROTO_H */
+
 #undef	exit
 #undef	rval_t
 #undef	strsignal
@@ -167,6 +207,13 @@
 #include <sys/tiuser.h>
 #include <rpc/auth.h>
 #include <rpc/clnt.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+#include <rpc/rpc.h>
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+
 #include <rpc/clnt_soc.h>
 #include <rpc/pmap_prot.h>
 #define	_KERNEL
@@ -243,7 +290,11 @@ struct lock_descriptor {
 #include <sys/ddidmareq.h>
 #include <sys/ddi_impldefs.h>
 #include <sys/mkdev.h>
+
+# if	defined(HASCACHEFS)
 #include <sys/fs/cachefs_fs.h>
+# endif	/* defined(HACACHEFS) */
+
 #include <sys/fs/fifonode.h>
 #include <sys/fs/pc_fs.h>
 #include <sys/fs/pc_dir.h>
@@ -256,7 +307,16 @@ struct lock_descriptor {
 
 #include <sys/fs/snode.h>
 #include <sys/fs/tmpnode.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
 #include <nfs/nfs.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
 
 # if	solaris>=100000
 #define	_KERNEL
@@ -316,6 +376,11 @@ extern int nlist();
 #define DEVINCR		1024		/* device table malloc() increment */
 #define	DINAMEL		32
 #define	DIRTYPE		dirent
+
+# if	solaris>=100000
+#define	GET_MAJ_DEV(d)	((major_t)(d >> L_BITSMINOR & L_MAXMAJ))
+#define	GET_MIN_DEV(d)	((minor_t)(d & L_MAXMIN))
+# endif	/* solaris >= 100000 */
 
 # if	solaris>=70000
 typedef	uintptr_t	KA_T;
@@ -407,6 +472,48 @@ struct clone {
 extern struct clone *Clone;
 
 extern	major_t	CloneMaj;
+
+# if	defined(HAS_LIBCTF)
+/*
+ * Definitions for using the CTF library, libctf.
+ */
+
+#include <libctf.h>
+
+#define CTF_MEMBER_UNDEF    ~0UL	/* undefined member type */
+					/* CTF_member_t element definition */
+
+/*
+ * Member structure definition, initialized by CTF_MEMBER() macro calls
+ */
+
+typedef struct CTF_member {
+    char *m_name;       		/* Member name. */
+    ulong_t m_offset;   		/* Member offset, initially in bits,
+					 * later bytes */
+} CTF_member_t;
+
+
+/*
+ * CTF request structure
+ */
+
+typedef struct CTF_request {
+    char *name;				/* structure name */
+    CTF_member_t *mem;			/* member table */
+} CTF_request_t;
+
+
+/*
+ * CTF macroes
+ */
+
+#define CTF_MEMBER(name)    { #name, CTF_MEMBER_UNDEF }
+#define CTF_MEMBER_READ(ka, s, members, member) \
+    kread((KA_T)(ka) + members[MX_ ## member].m_offset, \
+          (char *)&s->member, sizeof(s->member))
+# endif	/* defined(HAS_LIBCTF) */
+
 extern char **Fsinfo;
 extern int Fsinfomax;
 extern int HasALLKMEM;
@@ -488,6 +595,18 @@ struct pseudo {
 };
 extern struct pseudo *Pseudo;
 
+
+/*
+ * Solaris 11 sdev definitions
+ */
+
+#define	SDVOP_IP	0		/* Sdev[] devipnet_vnodeops index */
+#define	SDVOP_NET	1		/* Sdev[] devnet_vnodeops index */
+#define	SDVOP_PTS	2		/* Sdev[] devpts_vnodeops index */
+#define	SDVOP_VT	3		/* Sdev[] devvt_vnodeops index */
+#define	SDVOP_NUM	4		/* number of Sdev[] entries */
+
+
 struct sfile {
 	char *aname;			/* file name argument */
 	char *name;			/* file name (after readlink()) */
@@ -514,18 +633,6 @@ extern int Unof;			/* u_nofiles value */
 #define	VXVOP_REG	3		/* Vvops[] vx_vnodeops index */
 #define	VXVOP_REG_P	4		/* Vvops[] vx_vnodeops_p index */
 #define	VXVOP_NUM	5		/* number of Vvops[] entries */
-
-
-/*
- * ZFS definitions
- */
-
-#define	ZVOP_D		0		/* Zvops[] zfs_dvnodeops index */
-#define	ZVOP_E		1		/* Zvops[] zfs_evnodeops index */
-#define	ZVOP_F		2		/* Zvops[] zfs_fvnodeops index */
-#define	ZVOP_SYM	3		/* Zvops[] zfs_symvnodeops index */
-#define	ZVOP_XD		4		/* Zvops[] zfs_xdvnodeops index */
-#define	ZVOP_NUM	5		/* number of Zvops[] entries */
 
 
 /*
@@ -579,9 +686,5 @@ extern int Unof;			/* u_nofiles value */
 #define	NCACHE_NEGVN	"negative_cache_vnode"
 #  endif	/* solaris>=80000 */
 # endif	/* defined(HASNCACHE) */
-
-# if	defined(HAS_ZFS) && HAS_ZFS==1
-#define	DIALECT_WARNING "privately defined ZFS structures may be incorrect."
-# endif	/* defined(HAS_ZFS) && HAS_ZFS==1 */
 
 #endif	/* SOLARIS_LSOF_H */

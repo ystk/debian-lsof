@@ -1,7 +1,7 @@
 
 # FreeBSD Makefile remainder
 #
-# $Id: Makefile,v 1.11 2008/04/15 13:29:28 abe Exp $
+# $Id: Makefile,v 1.12 2009/03/25 19:23:06 abe Exp $
 
 PROG=	lsof
 
@@ -129,7 +129,7 @@ dnode1.o:	${HDR} dnode1.c
 
 dnode2.o:	dzfs.h dnode2.c
 		@if [ -f ./Makefile.zfs ]; then \
-		    make -f Makefile.zfs dnode2.o; \
+		    ${MAKE} -f Makefile.zfs dnode2.o; \
 		else \
 		    echo "${CC} ${CFLAGS} -c dnode2.c"; \
 		    ${CC} ${CFLAGS} -c dnode2.c; \

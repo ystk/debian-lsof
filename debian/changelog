@@ -1,3 +1,39 @@
+lsof (4.86+dfsg-1) unstable; urgency=low
+
+  [ Nicholas Bamber ]
+  * Imported into git.debian.org and documented procedures in README.source
+
+  [ Raoul Gunnar Borenius ]
+  * New upstream release (Closes: #596393) and (Closes: #520587)
+  * packaging is now done with plain debhelper.
+  * updated debian/control (added Uploaders:, include
+    upstream homepage, bumped standards version, etc.)
+  * changed debian/copyright to latest format
+  * added debian/patches/examples to correct path to perl interpreter 
+  * added debian/patches/manpage to add missing escape signs in
+    manpage 
+  * added watch file and uscan helper files (repack.stub, repack.local)
+    in preparation for downloading and dfsg-repackaging of the newest source. 
+
+  [ Nicholas Bamber ]
+  * New upstream release (4.86) and refreshed manpage patch
+  * Added additional mirrors to watch file
+  * Marked examples patch as not requiring forwarding
+  * Removed obsolete debian/control clauses
+  * Enabled all tests apart from the NFS based test
+  * Passed '-n freebsd' to ./Configure on freebsd builds (cf. #589103)
+  * Added main comment to debian/copyright explaining modifications
+    to upstream tarball and added missing copyright stanzas
+
+ -- Nicholas Bamber <nicholas@periapt.co.uk>  Wed, 25 Apr 2012 07:11:12 +0100
+
+lsof (4.81.dfsg.1-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * changed path to perl interpreter in examples (Closes: #544533) 
+
+ -- Raoul Gunnar Borenius <borenius@dfn.de>  Sun, 26 Feb 2012 00:20:17 +0100
+
 lsof (4.81.dfsg.1-1) unstable; urgency=low
 
   * New upstream release.

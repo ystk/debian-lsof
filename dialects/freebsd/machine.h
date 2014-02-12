@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: machine.h,v 1.37 2008/10/21 16:16:06 abe Exp $
+ * $Id: machine.h,v 1.38 2010/07/29 16:04:28 abe Exp $
  */
 
 
@@ -476,6 +476,13 @@ typedef	__cpumask_t	cpumask_t;
  */
 
 /* #define	HASSNODE	1 */
+
+
+/*
+ * HASTASKS is defined for those dialects that have task reporting support.
+ */
+
+/* #define	HASTASKS	1 */
 
 
 /*

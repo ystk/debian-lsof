@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dnode.c,v 1.39 2008/10/21 16:16:06 abe Exp $";
+static char *rcsid = "$Id: dnode.c,v 1.41 2011/08/07 22:51:28 abe Exp $";
 #endif
 
 
@@ -276,9 +276,9 @@ process_node(va)
 #  if	FREEBSDV<5000
 	struct specinfo si;
 #  else	/* FREEBSDV>=5000 */
-#   if	!defined(HAS_CONF_MINOR)
+#   if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev si;
-#   endif	/* !defined(HAS_CONF_MINOR) */
+#   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 #  endif	/* FREEBSDV<5000 */
 # endif	/* FREEBSDV>=4000 */
 #endif	/* FREEBSDV>=2000 */
@@ -321,9 +321,10 @@ process_node(va)
 	struct ufs2_dinode d2;
 # endif	/* !defined(HAS_UFS1_2) */
 
-# if	!defined(HAS_CONF_MINOR)
+# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev cd;
-# endif	/* !defined(HAS_CONF_MINOR) */
+# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
+
 	int cds;
 	struct devfs_dirent de;
 	struct devfs_dirent *d;
@@ -503,9 +504,9 @@ process_overlaid_node:
 	if (((v->v_type == VCHR) || (v->v_type == VBLK))
 	&&  v->v_rdev
 
-# if	!defined(HAS_CONF_MINOR)
+# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	&&  !kread((KA_T)v->v_rdev, (char *)&cd, sizeof(cd))
-# endif	/* !defined(HAS_CONF_MINOR) */
+# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
 	) {
 	    cds = 1;
@@ -779,7 +780,9 @@ process_overlaid_node:
 #if	defined(HAS_ZFS)
 	case VT_ZFS:
 	    if (!v->v_data
-	    ||  (zm = readzfsnode((KA_T)v->v_data, &zi))) {
+	    ||  (zm = readzfsnode((KA_T)v->v_data, &zi,
+				  ((v->v_vflag & VV_ROOT) ? 1 : 0)))
+	    ) {
 		(void) snpf(Namech, Namechl, "%s: %s", zm,
 		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
 		enter_nm(Namech);
@@ -827,18 +830,18 @@ process_overlaid_node:
 #if	FREEBSDV>=4000
 	    if (i->i_dev
 
-# if	!defined(HAS_CONF_MINOR)
+# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	    &&  !kread((KA_T)i->i_dev, (char *)&si, sizeof(si))
-# endif	/* !defined(HAS_CONF_MINOR) */
+# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
 	    ) {
 
 # if	defined(HAS_NO_SI_UDEV)
-#  if	defined(HAS_CONF_MINOR)
+#  if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 		dev = Dev2Udev((KA_T)i->i_dev);
-#  else	/* !defined(HAS_CONF_MINOR) */
+#  else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 		dev = Dev2Udev(&si);
-#  endif	/* defined(HAS_CONF_MINOR) */
+#  endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 # else	/* !defined(HAS_NO_SI_UDEV) */
 		dev = si.si_udev;
 # endif	/* defined(HAS_NO_SI_UDEV) */
@@ -866,11 +869,11 @@ process_overlaid_node:
 		if (cds) {
 
 # if	defined(HAS_NO_SI_UDEV)
-#  if	defined(HAS_CONF_MINOR)
+#  if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 		    rdev = Dev2Udev((KA_T)v->v_rdev);
-#  else	/* !defined(HAS_CONF_MINOR) */
+#  else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 		    rdev = Dev2Udev(&cd);
-#  endif	/* defined(HAS_CONF_MINOR) */
+#  endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 # else	/* !defined(HAS_NO_SI_UDEV) */
 		    rdev = cd.si_udev;
 # endif	/* defined(HAS_NO_SI_UDEV) */
@@ -963,11 +966,11 @@ process_overlaid_node:
 		if (cds) {
 
 # if	defined(HAS_NO_SI_UDEV)
-#  if	defined(HAS_CONF_MINOR)
+#  if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 		    rdev = Dev2Udev((KA_T)v->v_rdev);
-#  else	/* !defined(HAS_CONF_MINOR) */
+#  else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 		    rdev = Dev2Udev(&cd);
-#  endif	/* defined(HAS_CONF_MINOR) */
+#  endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 # else	/* !defined(HAS_NO_SI_UDEV) */
 		    rdev = cd.si_udev;
 # endif	/* defined(HAS_NO_SI_UDEV) */

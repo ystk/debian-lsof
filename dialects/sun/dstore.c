@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dstore.c,v 1.21 2007/04/24 16:23:15 abe Exp $";
+static char *rcsid = "$Id: dstore.c,v 1.23 2010/01/18 19:03:54 abe Exp $";
 #endif
 
 
@@ -86,7 +86,9 @@ struct drive_Nl Drive_Nl[] = {
 	{ "ctfstmpl",	"ctfs_ops_tmpl",	 },
 	{ "cvops",	"cachefs_vnodeops"	 },
 	{ "clmaj",	"clonemaj"		 },
+	{ "clmaj_alt",	"clone_major"		 },
 	{ "fdops",	"fdvnodeops"		 },
+	{ "fd_ops",	"fd_vnodeops"		 },
 	{ "fvops",	"fifo_vnodeops"		 },
 	{ "hvops",	"hsfs_vnodeops"		 },
 	{ "lvops",	"lo_vnodeops"		 },
@@ -120,8 +122,11 @@ struct drive_Nl Drive_Nl[] = {
 	{ "sam2vops",	"samfs_client_vnodeops"	 },
 	{ "sam3vops",	"samfs_vnodeopsp"	 },
 	{ "sam4vops",	"samfs_client_vnodeopsp" },
+	{ "sdevops",	"sdev_vnodeops"		 },
 	{ "sgvops",	"segvn_ops"		 },
+	{ "shvops",	"sharefs_ops_data"	 },
 	{ "sckvops",	"sock_vnodeops"		 },
+	{ "socketvops",	"socket_vnodeops"	 },
 	{ "spvops",	"spec_vnodeops"		 },
 	{ "sncavops",	"socknca_vnodeops"	 },
 	{ "stpivops",	"socktpi_vnodeops"	 },
@@ -135,7 +140,7 @@ struct drive_Nl Drive_Nl[] = {
 
 #if	solaris>=20500
 	{ "devops",	"dv_vnodeops"		 },
-	{ "dvops",	"door_vnodeops"		 },
+	{ "doorops",	"door_vnodeops"		 },
 	{ "kbase",	"_kernelbase"		 },
 #endif	/* solaris>=20500 */
 
@@ -143,9 +148,17 @@ struct drive_Nl Drive_Nl[] = {
 	{ "kasp",	"kas"			 },
 #endif	/* solaris>=20501 */
 
+#if	solaris>=110000
+	{ "devipnetops","devipnet_vnodeops"	 },
+	{ "devnetops",	"devnet_vnodeops"	 },
+	{ "devptsops",	"devpts_vnodeops"	 },
+	{ "devvtops",	"devvt_vnodeops"	 },
+#endif	/* solaris>=110000 */
+
 	{ "zfsdops",	"zfs_dvnodeops"		 },
 	{ "zfseops",	"zfs_evnodeops"		 },
 	{ "zfsfops",	"zfs_fvnodeops"		 },
+	{ "zfsshops",	"zfs_sharevnodeops"	 },
 	{ "zfssymops",	"zfs_symvnodeops"	 },
 	{ "zfsxdops",	"zfs_xdvnodeops"	 },
 	{ "",		""			 },

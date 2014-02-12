@@ -31,7 +31,7 @@
 
 
 /*
- * $Id: machine.h,v 1.33 2008/10/21 16:17:21 abe Exp $
+ * $Id: machine.h,v 1.36 2012/04/10 16:39:50 abe Exp $
  */
 
 
@@ -138,6 +138,13 @@
  */
 
 /* #define	HASFIFONODE	1 */
+
+
+/*
+ * HASEOPT is defined for dialects that support the -e option
+ */
+
+#define	HASEOPT	1
 
 
 /*
@@ -489,6 +496,13 @@
 
 
 /*
+ * HASTASKS is defined for those dialects that have task reporting support.
+ */
+
+#define	HASTASKS	1
+
+
+/*
  * HASTCPTPIQ is defined for dialects where it is possible to report the
  * TCP/TPI Recv-Q and Send-Q values produced by netstat.
  */
@@ -574,7 +588,7 @@
 /* #define	USE_LIB_CKKV			1	   ckkv.c */
 /* #define	USE_LIB_COMPLETEVFS		1	   cvfs.c */
 /* #define	USE_LIB_FIND_CH_INO		1	   fino.c */
-#define	USE_LIB_IS_FILE_NAMED			1	/* isfn.c */
+/* #define	USE_LIB_IS_FILE_NAMED		1	   isfn.c */
 /* #define	USE_LIB_LKUPDEV			1	   lkud.c */
 /* #define	USE_LIB_PRINTDEVNAME		1	   pdvn.c */
 /* #define	USE_LIB_PROCESS_FILE		1	   prfp.c */

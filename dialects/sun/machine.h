@@ -31,23 +31,22 @@
 
 
 /*
- * $Id: machine.h,v 1.43 2008/10/21 16:16:42 abe Exp $
+ * $Id: machine.h,v 1.47 2011/09/07 19:16:00 abe Exp $
  */
 
-
 #if	!defined(LSOF_MACHINE_H)
-#define	LSOF_MACHINE_H	1
+#define	LSOF_MACHINE_H  1
 
-
-# if	solaris>=90000
+# if	defined(HAS_LGRP_ROOT_CONFLICT)
 /*
- * <sys/lgrp.h> must be #include'd for Solaris >= 9 before _KMEMUSER or
- * _KERNEL are defined to avoid a conflict with the use of lgrp_root as
- * an external symbol in <sys/lgrp.h> and a macro in <sys/lgrp_user.h>.
+ * <sys/lgrp.h> must be #include'd early on some older Solaris systems at
+ * version 9 and Solaris 10 before _KMEMUSER or _KERNEL are defined to avoid
+ * a conflict with the use of lgrp_root as an external symbol in <sys/lgrp.h>
+ * and a macro in <sys/lgrp_user.h>.
  */
 
 #include <sys/lgrp.h>
-# endif	/* solaris>=90000 */
+# endif	/* defined(HAS_LGRP_ROOT_CONFLICT) */
 
 
 # if	solaris>=100000
@@ -57,6 +56,15 @@
  */
 
 typedef struct aio_req { int dummy; } aio_req_t;
+
+/*
+ * Include <sys/utsname.h> so it won't be corrupted for 32 bit compilations
+ * when _KERNEL is defined for some include files in dlsof.h.
+ *
+ * Daniel Trinkle identified this requirement.
+ */
+
+#include <sys/utsname.h>
 # endif	/* solaris>=100000 */
 
 
@@ -72,6 +80,28 @@ typedef struct aio_req { int dummy; } aio_req_t;
 #define	__BIT_TYPES_DEFINED__	1	/* work around to keep the BIND
 					 * <sys/bitypes.h> from colliding with
 					 * the Solaris <sys/int_types.h> */
+
+#  if	defined(HAS_PAD_MUTEX)
+/*
+ * Some versions of Solaris 11 need to have the pad_mutex_t typedef defined.
+ * However, it is only defined by <sys/mutex.h> when _KERNEL is defined, and
+ * doing that causes other difficulties.
+ *
+ * So <sys/mutex.h> is included here, followed by a copy of its pad_mutex_t
+ * typedef, all outside the _KERNEL definition.
+ *
+ * This brute force work-around was supplied by Carson Gaspar.
+ */
+
+#include	<sys/mutex.h>
+typedef struct pad_mutex {
+	kmutex_t	pad_mutex;
+#   if	defined(_LP64)
+	char		pad_pad[64 - sizeof (kmutex_t)];
+#   endif	/* defined(_LP64) */
+} pad_mutex_t;
+#  endif	/* defined(HAS_PAD_MUTEX) */
+
 #include <sys/poll.h>
 
 # if	solaris>=80000
@@ -172,6 +202,13 @@ typedef struct aio_req { int dummy; } aio_req_t;
  */
 
 /* #define	HASCDRNODE	1 */
+
+
+/*
+ * HASEOPT is defined for dialects that support the +|-e option.
+ */
+
+/* #define	HASEOPT	1 */
 
 
 /*
@@ -380,7 +417,10 @@ typedef struct aio_req { int dummy; } aio_req_t;
  * called from print_file().
  */
 
+# if	solaris<100000
 #define	HASPRINTDEV	print_dev
+# endif	/* solaris<100000 */
+
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
 /* #define	HASPRINTOFF	print_off?	*/
@@ -511,6 +551,13 @@ typedef struct aio_req { int dummy; } aio_req_t;
  */
 
 #define	HASSNODE	1
+
+
+/*
+ * HASTASKS is defined for those dialects that have task reporting support.
+ */
+
+/* #define	HASTASKS	1 */
 
 
 /*

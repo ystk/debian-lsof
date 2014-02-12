@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dmnt.c,v 1.15 2008/10/21 16:16:06 abe Exp $";
+static char *rcsid = "$Id: dmnt.c,v 1.16 2009/03/25 19:23:06 abe Exp $";
 #endif
 
 
@@ -68,15 +68,15 @@ static char *mnt_names[] = INITMOUNTNAMES;
 dev_t
 Dev2Udev(c)
 
-# if	defined(HAS_CONF_MINOR)
+# if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 	KA_T c;
-# else	/* !defined(HAS_CONF_MINOR) */
+# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 	struct cdev *c;
-# endif	/* defined(HAS_CONF_MINOR) */
+# endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 
 {
 
-# if	!defined(HAS_CONF_MINOR)
+# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	char *cp;
 	char *dn = (char *)NULL;
 	char *ln = (char *)NULL;
@@ -85,19 +85,25 @@ Dev2Udev(c)
 	static u_int s;
 	struct stat sb;
 	static int ss = 0;
-# endif	/* !defined(HAS_CONF_MINOR) */
+# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
-# if	defined(HAS_CONF_MINOR)
+# if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
 	KA_T ca;
 	struct cdev_priv cp;
 
 	if (!c)
 	    return(NODEV);
+
+#  if	defined(HAS_CDEV2PRIV)
+	ca = (KA_T)cdev2priv(c);
+#  else	/* !defined(HAS_CDEV2PRIV) */
 	ca = (KA_T)member2struct(cdev_priv, cdp_c, c);
+#  endif	/* defined(HAS_CDEV2PRIV) */
+
 	if (kread((KA_T)ca, (char *)&cp, sizeof(cp)))
 	    return(NODEV);
 	return((dev_t)cp.cdp_inode);
-# else	/* !defined(HAS_CONF_MINOR) */
+# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 #  if	defined(HAS_SI_PRIV)
 /*
  * If the cdev structure has a private sub-structure, read it.

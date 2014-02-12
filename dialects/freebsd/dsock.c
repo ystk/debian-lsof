@@ -32,7 +32,7 @@
 #ifndef lint
 static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-static char *rcsid = "$Id: dsock.c,v 1.27 2008/10/21 16:16:06 abe Exp $";
+static char *rcsid = "$Id: dsock.c,v 1.28 2009/03/25 19:23:06 abe Exp $";
 #endif
 
 
@@ -47,6 +47,25 @@ static char *rcsid = "$Id: dsock.c,v 1.27 2008/10/21 16:16:06 abe Exp $";
  */
 
 #define IPv6_2_IPv4(v6)	(((uint8_t *)((struct in6_addr *)v6)->s6_addr)+12)
+
+# if	defined(HAS_NO_6PORT)
+/*
+ * If the in_pcb structure no longer has the KAME accommodations of
+ * in6p_[fl]port, redefine them to inp_[fl]port.
+ */
+
+#define	in6p_fport	inp_fport
+#define	in6p_lport	inp_lport
+# endif	/* defined(HAS_NO_6PORT) */
+
+# if	defined(HAS_NO_6PPCB)
+/*
+ * If the in_pcb structure no longer has the KAME accommodation of in6p_pcb,
+ * redefine it to inp_ppcb.
+ */
+
+#define	in6p_ppcb	inp_ppcb
+# endif	/* defined(HAS_NO_6PPCB) */
 #endif	/* defined(HASIPv6) */
 
 

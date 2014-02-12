@@ -136,6 +136,12 @@ LSOF_CCV        is the C compiler version.  You should specify it
 			 Check the dialect stanza in the lsof Configure
 			 script to see how lsof_CCV is set by default.
 
+LSOF_CFGF	may be used to specify additional configuration values
+		that will appear in the CFGF string of the Makefile.
+
+LSOF_CFGL	may be used to specify additional library specifications
+		that will appear in the CFGL string of the Makefile.
+
 LSOF_HOST       may be used to specify a value in lsof's -v output
 		other than the name of the host where lsof was
 		built.  A value of "none" inhibits host name display
@@ -158,11 +164,23 @@ LSOF_LOGNAME    may be used to specify a value in lsof's -v output
 
 		default: the LOGNAME environment variable
 
+LSOF_MAKE	is the path to the make command.
+
+		deafult: the output of `which make`, if it is not NULL;
+			 otherwise the string "make".
+
 LSOF_MKC        may be used to specify an alternate method of
 		connecting dialect sources to the top-level lsof
 		directory.  See 00PORTING for more information.
 
 		default: ln -s
+
+LSOF_RANLIB	may be used to specify an alternate command for the
+		randomizing of the lsof library.
+
+		default: ranlib for most dialects
+			 none for: IBM AIX; HP-UX; SCO OpenServer; Solaris
+				   and SCO|Caldera UnixWare
 
 LSOF_SYSINFO    may be used to specify a value in lsof's -v output
 		other than the standard system identification --
@@ -272,6 +290,9 @@ Abbreviation*	  Prefix	 Number       LSOF_VERS
 				  4.1x		   41x0
 				  5.x		   50x0
 				  6.x		   60x0
+				  7.x		   70x0
+				  8.x		   80x0
+				  9.x		   90x0
 	hpux	    HPUX	  9.1		    901
      hpuxgcc	    HPUX	  9.5		    905
 				  10.0		   1000
@@ -503,6 +524,12 @@ LINUX_CLIB		specifies the definition of the Linux C library:
 			default: ""             (standard C library)
 			others: -DGLIBCV=2      (glibc2)
 
+LINUX_CONF_CC		specifies the location of the C compiler to use during
+			the running of the Configure script:
+
+			default: the value of the LSOF_CC variable, if defined,
+				 or cc
+
 LINUX_HASSELINUX	If this environment variable has a value of "Y" or "y",
 			Configure unconditionally activates SELinux support.
 			If it has any other value, Configure unconditionally
@@ -510,6 +537,10 @@ LINUX_HASSELINUX	If this environment variable has a value of "Y" or "y",
 
 			Default: assumed to be "Y" if <selinux/selinux.h>
 				 exists
+
+LINUX_INCL		specifies the path to the header file tree:
+
+			default: /usr/include
 
 LINUX_LSEEK		If this environment variable has a value of "Y" or "y",
 			Configure uses Makefile.lseek in place of Makefile in
@@ -519,6 +550,13 @@ LINUX_LSEEK		If this environment variable has a value of "Y" or "y",
 			need is determined by compilation.
 
 			default: determined by test program
+
+LINUX_VERSION_CODE	specifies the value of the LINUX_VERSION_CODE in the
+			same decimal form as found in the LINUX_VERSION_CODE
+			#define of /usr/include/linux/version.h:
+
+			default: the value of LINUX_VERSION_CODE in
+				 /usr/include/linux/version.h
 
 NETBSD_SYS		specifies the path to the NetBSD system source
 			directory.
@@ -662,4 +700,4 @@ UW_HAS_NSC		If this environment variable has a value of "Y" or "y",
 			default: tested via /bin/node_self
 
 Vic Abell <abe@purdue.edu>
-April 15, 2008
+September 27, 2011

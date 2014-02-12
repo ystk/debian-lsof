@@ -33,16 +33,16 @@
 
 
 /*
- * $Id: dproto.h,v 1.13 2008/10/21 16:16:06 abe Exp $
+ * $Id: dproto.h,v 1.14 2009/03/25 19:23:06 abe Exp $
  */
 
 
 #if	FREEBSDV>=5000 && defined(HAS_NO_SI_UDEV)
-# if	defined(HAS_CONF_MINOR)
+# if	defined(HAS_CONF_MINOR)|| defined(HAS_CDEV2PRIV)
 _PROTOTYPE(extern dev_t Dev2Udev,(KA_T c));
-# else	/* !defined(HAS_CONF_MINOR) */
+# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 _PROTOTYPE(extern dev_t Dev2Udev,(struct cdev *c));
-# endif	/* defined(HAS_CONF_MINOR) */
+# endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 #endif	/* FREEBSDV>=5000 && defined(HAS_NO_SI_UDEV) */
 
 #if	!defined(N_UNIX)
